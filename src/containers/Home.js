@@ -1,43 +1,59 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import {
-  useSpring, animated as a, useSprings, useChain,
-} from 'react-spring';
+import { useSprings, animated as a } from 'react-spring';
+import useDimensions from 'react-use-dimensions';
 import MaxDiv from '../components/UI/MaxDiv';
+import HalfDiv from '../components/Home/HalfDiv';
+import Reset from '../components/Home/Reset';
 import mobile from '../assets/mobile.jpg';
 import office from '../assets/office.jpg';
+import rpmLogo from '../assets/rpmLogo.png';
+import packLogo from '../assets/packLogo.png';
 
-const HalfDiv = styled(a.div)`
-  height: 100%;
-  width: 100%;
-  top: 0;
+const Content = styled('div')`
   position: absolute;
-  background-size: cover;
-  background-position: center;
-  overflow: hidden;
+  top: 0;
+  width: 75vw;
+  height: 100%;
+`;
 
-  &::before {
-    content: '';
+const RpmLogo = styled(a.div)`
+  position: absolute;
+  bottom: 100px;
+  width: 100vw;
+  right: 0;
+  height: auto;
+  user-select: none;
+  img {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: ${({ overlay }) => overlay};
+    bottom: 0;
+    transform: translateX(50%);
+    width: 150px;
+    height: auto;
+    right: 50vw;
   }
 `;
 
-const Reset = styled(a.div)`
-  height: 100%;
-  width: 50px;
+const PackLogo = styled(a.div)`
   position: absolute;
-  top: 0;
-  background-color: black;
-  z-index: 10;
+  bottom: 100px;
+  width: 100vw;
+  left: 0;
+  height: auto;
+  user-select: none;
+  img {
+    position: absolute;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 150px;
+    height: auto;
+    left: 50vw;
+  }
 `;
 
 const Home = () => {
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [ref, { width }] = useDimensions();
 
   // react-spring
   const [widthSprings, widthSet] = useSprings(2, () => ({
@@ -50,6 +66,8 @@ const Home = () => {
     opacity: 0,
   }));
 
+  const [smallLogoPos, setSmallLogoPos] = useSprings(2, i => ({}));
+
   useEffect(() => {
     widthSet((i) => {
       const isActive = activeIndex === i;
@@ -59,7 +77,7 @@ const Home = () => {
       }
       return {
         width: p,
-        // delay: isActive ? 0 : 75,
+        delay: isActive ? 0 : 75,
       };
     });
     resetSet((i) => {
@@ -70,7 +88,19 @@ const Home = () => {
         opacity: isActive ? 1 : 0,
       };
     });
-  }, [activeIndex]);
+    setSmallLogoPos((i) => {
+      const pos = width * 0.33;
+      const p = (pos / width) * 100;
+      const t = `${i === 0 ? p : -1 * p}%`;
+      const v = '0%';
+      const isActive = i === activeIndex;
+      const transform = `translateX(${isActive ? t : v})`;
+      return {
+        transform,
+        delay: 300,
+      };
+    });
+  }, [activeIndex, width]);
   // end of react-spring
 
   // Separated because of weird editor lag
@@ -81,12 +111,11 @@ const Home = () => {
 
   const reset = (e) => {
     e.stopPropagation();
-    console.log('Trying to reset');
     setActiveIndex(-1);
   };
 
   return (
-    <MaxDiv style={{ overflow: 'hidden' }}>
+    <MaxDiv ref={ref} style={{ overflow: 'hidden', backgroundColor: 'black' }}>
       <HalfDiv
         style={{
           ...widthSprings[0],
@@ -96,11 +125,10 @@ const Home = () => {
         overlay="rgba(86, 216, 212, 0.8)"
         onClick={() => setActiveIndex(0)}
       >
-        <Reset
-          style={{ ...resetStyles[0], ...resetSpring[0] }}
-          onClick={reset}
-        />
-        Left
+        <Reset style={{ ...resetStyles[0], ...resetSpring[0] }} onClick={reset} />
+        <PackLogo style={smallLogoPos[0]}>
+          <img src={packLogo} alt="" />
+        </PackLogo>
       </HalfDiv>
       <HalfDiv
         style={{
@@ -111,11 +139,12 @@ const Home = () => {
         overlay="rgba(0, 0, 0, 0.8)"
         onClick={() => setActiveIndex(1)}
       >
-        <Reset
-          style={{ ...resetStyles[1], ...resetSpring[1] }}
-          onClick={reset}
-        />
-        Right
+        <Reset style={{ ...resetStyles[1], ...resetSpring[1] }} onClick={reset} />
+        <Content style={{ right: 0, paddingLeft: 50 }}>
+          <RpmLogo style={smallLogoPos[1]}>
+            <img src={rpmLogo} alt="" />
+          </RpmLogo>
+        </Content>
       </HalfDiv>
     </MaxDiv>
   );
