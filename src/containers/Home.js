@@ -88,6 +88,7 @@ const Home = () => {
         }}
         overlay="rgba(86, 216, 212, 0.8)"
         onClick={() => setActiveIndex(0)}
+        // onMouseOver={() => setActiveIndex(0)}
       >
         <Reset style={{ ...resetStyles[0], ...resetSpring[0] }} onClick={reset} />
         <SmallLogo
@@ -108,6 +109,7 @@ const Home = () => {
         }}
         overlay="rgba(0, 0, 0, 0.8)"
         onClick={() => setActiveIndex(1)}
+        // onMouseOver={() => setActiveIndex(1)}
       >
         <Reset style={{ ...resetStyles[1], ...resetSpring[1] }} onClick={reset} />
         <Content style={{ right: 0, paddingLeft: 50 }}>
