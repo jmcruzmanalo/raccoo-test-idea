@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { useSprings, animated as a } from 'react-spring';
-import useDimensions from 'react-use-dimensions';
+import { useSprings } from 'react-spring';
 import MaxDiv from '../components/UI/MaxDiv';
 import HalfDiv from '../components/Home/HalfDiv';
 import Reset from '../components/Home/Reset';
+import SmallLogo from '../components/Home/SmallLogo';
+import BigLogo from '../components/Home/BigLogo';
 import mobile from '../assets/mobile.jpg';
 import office from '../assets/office.jpg';
 import rpmLogo from '../assets/rpmLogo.png';
 import packLogo from '../assets/packLogo.png';
+import packLogoBig from '../assets/packLogoBig.png';
 
 const Content = styled('div')`
   position: absolute;
@@ -17,43 +19,8 @@ const Content = styled('div')`
   height: 100%;
 `;
 
-const RpmLogo = styled(a.div)`
-  position: absolute;
-  bottom: 100px;
-  width: 100vw;
-  right: 0;
-  height: auto;
-  user-select: none;
-  img {
-    position: absolute;
-    bottom: 0;
-    transform: translateX(50%);
-    width: 150px;
-    height: auto;
-    right: 50vw;
-  }
-`;
-
-const PackLogo = styled(a.div)`
-  position: absolute;
-  bottom: 100px;
-  width: 100vw;
-  left: 0;
-  height: auto;
-  user-select: none;
-  img {
-    position: absolute;
-    bottom: 0;
-    transform: translateX(-50%);
-    width: 150px;
-    height: auto;
-    left: 50vw;
-  }
-`;
-
 const Home = () => {
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [ref, { width }] = useDimensions();
 
   // react-spring
   const [widthSprings, widthSet] = useSprings(2, () => ({
@@ -65,8 +32,6 @@ const Home = () => {
     transform: `translateX(${i === 0 ? '100%' : '-100%'})`,
     opacity: 0,
   }));
-
-  const [smallLogoPos, setSmallLogoPos] = useSprings(2, i => ({}));
 
   useEffect(() => {
     widthSet((i) => {
@@ -88,19 +53,7 @@ const Home = () => {
         opacity: isActive ? 1 : 0,
       };
     });
-    setSmallLogoPos((i) => {
-      const pos = width * 0.33;
-      const p = (pos / width) * 100;
-      const t = `${i === 0 ? p : -1 * p}%`;
-      const v = '0%';
-      const isActive = i === activeIndex;
-      const transform = `translateX(${isActive ? t : v})`;
-      return {
-        transform,
-        delay: 300,
-      };
-    });
-  }, [activeIndex, width]);
+  }, [activeIndex]);
   // end of react-spring
 
   // Separated because of weird editor lag
@@ -114,8 +67,19 @@ const Home = () => {
     setActiveIndex(-1);
   };
 
+  // Big Logo positions;
+  let firstLogoPos = 'default';
+  let secondLogoPos = 'default';
+  if (activeIndex === 0) {
+    firstLogoPos = 'hidden';
+    secondLogoPos = 'show';
+  } else if (activeIndex === 1) {
+    firstLogoPos = 'show';
+    secondLogoPos = 'hidden';
+  }
+
   return (
-    <MaxDiv ref={ref} style={{ overflow: 'hidden', backgroundColor: 'black' }}>
+    <MaxDiv style={{ overflow: 'hidden', backgroundColor: 'black' }}>
       <HalfDiv
         style={{
           ...widthSprings[0],
@@ -126,9 +90,15 @@ const Home = () => {
         onClick={() => setActiveIndex(0)}
       >
         <Reset style={{ ...resetStyles[0], ...resetSpring[0] }} onClick={reset} />
-        <PackLogo style={smallLogoPos[0]}>
-          <img src={packLogo} alt="" />
-        </PackLogo>
+        <SmallLogo
+          src={packLogo}
+          isActive={activeIndex === 0}
+          animationDirection="left"
+          style={{
+            left: 0,
+          }}
+        />
+        <BigLogo position={firstLogoPos} style={{ left: 0 }} src={rpmLogo} animationDirection="left" />
       </HalfDiv>
       <HalfDiv
         style={{
@@ -141,9 +111,13 @@ const Home = () => {
       >
         <Reset style={{ ...resetStyles[1], ...resetSpring[1] }} onClick={reset} />
         <Content style={{ right: 0, paddingLeft: 50 }}>
-          <RpmLogo style={smallLogoPos[1]}>
-            <img src={rpmLogo} alt="" />
-          </RpmLogo>
+          <SmallLogo
+            isActive={activeIndex === 1}
+            animationDirection="right"
+            src={rpmLogo}
+            style={{ right: 0 }}
+          />
+          <BigLogo position={secondLogoPos} style={{ right: 0 }} src={packLogoBig} animationDirection="right" />
         </Content>
       </HalfDiv>
     </MaxDiv>
